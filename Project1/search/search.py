@@ -105,17 +105,21 @@ def depthFirstSearch(problem: SearchProblem):
         if problem.isGoalState(node): # goal check
             return path
 
-        for children in problem.getSuccessors(node): # getSuccessors -> (successor, action, stepcost)
-            child  = children[0]
-            action = children[1]
-            cost   = children[2]
+        # getSuccessors -> (successor, action, stepcost)
+        successors = problem.getSuccessors(node) # successors is a list of all successors
 
-            # searching for unvisited nodes
-            if child not in visited:
-                # each child needs a new unique path
-                new_path = path.copy()           # copy old path to a new path for each successor
-                new_path.append(action)          # add the new successor move  
-                queueFunc.push((child,new_path)) # push the node and it's unique path 
+        if successors: # if list is not empty
+            for successor in successors: 
+                child  = successor[0]
+                action = successor[1]
+                cost   = successor[2]
+
+                # searching for unvisited nodes
+                if child not in visited:
+                    # each child needs a new unique path
+                    new_path = path.copy()           # copy old path to a new path for each successor
+                    new_path.append(action)          # add the new successor move  
+                    queueFunc.push((child,new_path)) # push the node and it's unique path 
     else:
         return [] # if stack is empty return empty list
 
@@ -148,17 +152,21 @@ def breadthFirstSearch(problem: SearchProblem):
         if problem.isGoalState(node): # goal check
             return path
 
-        for children in problem.getSuccessors(node): # getSuccessors -> (successor, action, stepcost)
-            child  = children[0]
-            action = children[1]
-            cost   = children[2]
-          
-            # searching for unvisited nodes
-            if child not in visited and not isInQueue(child, queueFunc):
-                # each child needs a new unique path
-                new_path = path.copy()           # copy old path to a new path for each successor
-                new_path.append(action)          # add the new successor move  
-                queueFunc.push((child,new_path)) # push the node and it's unique path 
+        # getSuccessors -> (successor, action, stepcost)
+        successors = problem.getSuccessors(node) # successors is a list of all successors
+
+        if successors: # if list is not empty
+            for successor in successors: 
+                child  = successor[0]
+                action = successor[1]
+                cost   = successor[2]
+            
+                # searching for unvisited nodes
+                if child not in visited and not isInQueue(child, queueFunc):
+                    # each child needs a new unique path
+                    new_path = path.copy()           # copy old path to a new path for each successor
+                    new_path.append(action)          # add the new successor move  
+                    queueFunc.push((child,new_path)) # push the node and it's unique path 
     else:
         return [] # if queue is empty return empty list
 
@@ -192,30 +200,34 @@ def uniformCostSearch(problem: SearchProblem):
         if problem.isGoalState(node): # goal check
             return path
 
-        for children in problem.getSuccessors(node): # getSuccessors -> (successor, action, stepcost)
-            child  = children[0]
-            action = children[1]
-            cost   = children[2]
+        # getSuccessors -> (successor, action, stepcost)
+        successors = problem.getSuccessors(node) # successors is a list of all successors
 
-            # searching for unvisited nodes
-            if child not in visited and not isInPQueue(child, queueFunc):
-                # each child needs a new unique path
-                new_path = path.copy()                 # copy old path to a new path for each successor
-                new_path.append(action)                # add the new successor move  
-                queueFunc.push((child,new_path), problem.getCostOfActions(new_path)) # push the node with it's path and new cost 
-            # if its already in the PQueue I check if there's a quickest path with less cost than before and if so, update it    
-            elif child not in visited and isInPQueue(child, queueFunc):
-                # each child needs a new unique path
-                new_path = path.copy()                 # copy old path(Parent's) to a new path for each successor
-                new_path.append(action)                # add the new successor move  
-                # targetting the current child in the Pqueue that needs new pathCost check 
-                for item in queueFunc.heap: # item[2][0] because pqueue.heap => (cost, count, (node, path))
-                    node = item[2][0]
-                    if node == child: # found it
-                        old_cost = item[0]
-                        new_cost = problem.getCostOfActions(new_path)
-                        if new_cost < old_cost: # update it with the lowest cost and fastest path
-                            queueFunc.update((child, new_path), new_cost)                       
+        if successors: # if list is not empty
+            for successor in successors: 
+                child  = successor[0]
+                action = successor[1]
+                cost   = successor[2]
+
+                # searching for unvisited nodes
+                if child not in visited and not isInPQueue(child, queueFunc):
+                    # each child needs a new unique path
+                    new_path = path.copy()                 # copy old path to a new path for each successor
+                    new_path.append(action)                # add the new successor move  
+                    queueFunc.push((child,new_path), problem.getCostOfActions(new_path)) # push the node with it's path and new cost 
+                # if its already in the PQueue I check if there's a quickest path with less cost than before and if so, update it    
+                elif child not in visited and isInPQueue(child, queueFunc):
+                    # each child needs a new unique path
+                    new_path = path.copy()                 # copy old path(Parent's) to a new path for each successor
+                    new_path.append(action)                # add the new successor move  
+                    # targetting the current child in the Pqueue that needs new pathCost check 
+                    for item in queueFunc.heap: # item[2][0] because pqueue.heap => (cost, count, (node, path))
+                        node = item[2][0]
+                        if node == child: # found it
+                            old_cost = item[0]
+                            new_cost = problem.getCostOfActions(new_path)
+                            if new_cost < old_cost: # update it with the lowest cost and fastest path
+                                queueFunc.update((child, new_path), new_cost)                       
     else:
         return [] # if PriorityQueue is empty return empty list
 
@@ -253,18 +265,22 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         if problem.isGoalState(node): # goal check
             return path      
 
-        for children in problem.getSuccessors(node): # getSuccessors -> (successor, action, stepcost)
-            child  = children[0]
-            action = children[1]
-            cost   = children[2]
+        # getSuccessors -> (successor, action, stepcost)
+        successors = problem.getSuccessors(node) # successors is a list of all successors
 
-            # searching for unvisited nodes
-            if child not in visited:
-                # each child needs a new unique path
-                new_path = path.copy()  # copy old path to a new path for each successor
-                new_path.append(action) # add the new successor move  
-                f = problem.getCostOfActions(new_path) + heuristic(child, problem) # f(n) = c(n) + h(n)
-                queueFunc.push((child, new_path), f) # push the node with it's path and new f(n) 
+        if successors: # if list is not empty
+            for successor in successors: 
+                child  = successor[0]
+                action = successor[1]
+                cost   = successor[2]
+
+                # searching for unvisited nodes
+                if child not in visited:
+                    # each child needs a new unique path
+                    new_path = path.copy()  # copy old path to a new path for each successor
+                    new_path.append(action) # add the new successor move  
+                    f = problem.getCostOfActions(new_path) + heuristic(child, problem) # f(n) = c(n) + h(n)
+                    queueFunc.push((child, new_path), f) # push the node with it's path and new f(n) 
 
 
 # Abbreviations

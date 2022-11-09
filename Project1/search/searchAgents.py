@@ -372,26 +372,6 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-# helper function for checking if all items in the list are False
-def list_is_false(list):
-    for i in range(0, len(list)):
-        if list[i] == True:
-            return False
-
-    return True
-
-# helper function for returning the lowest distance corner
-def get_best_corner(min_distance, distances, problem: CornersProblem):
-    # Ex. min_distance = 4
-    # Ex. distances    = [99999, 10, 5, 4]
-    # Ex. return       = problem.corners[3] = (right, top)
-    for i in range(0, len(distances)):
-        distance = distances[i]
-        if distance == min_distance:
-            return problem.corners[i]
-
-        return -1
-
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
@@ -406,28 +386,20 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners_visited = list(state[1])         # convert tuple to list to change values
-    distances = [99999, 99999, 99999, 99999] # distance from current state to all corners
-    sum = 0                                  # sum of min_distances
-    current = state[0]                       # current (x, y)
+    max_distance = 0
+    current = state[0]  # current (x,y)
 
-    if problem.isGoalState(state):
-        return 0
+    for i in range(0, len(problem.corners)): # 0 <= i < 4
+        corner = problem.corners[i]
+        isVisited = state[1][i] # a state contains (position, tuple: visited_corners)
+        # distance from current (x, y) to a corner using Manhattan Distance 
+        distance_to_corner = util.manhattanDistance(current, corner) 
 
-    while list_is_false(corners_visited): # while there are unvisited corners
-        for i in range(0, len(problem.corners)): # from i = 0 to i = 3
-            corner = problem.corners[i]
-            if corners_visited[i] == False: # if current corner is unvisited
-                # distances[i] = manhattan distance from current (x, y) to the current corner
-                distances[i] = abs(current[0] - corner[0]) + abs(current[1] - corner[1]) 
-                corners_visited[i] = True # current corner has been visited
-
-        min_distance = min(distances) # find the min distance from the distance list of the current state (x, y)
-        sum += min_distance # add current state (x, y) min_distance to the sum of min_distances
-        current = get_best_corner(min_distance, distances, problem) # assign current state to the nearest corner
-        distances = [99999, 99999, 99999, 99999] # initialize the distances list for the next iteration
-
-    return sum # return the sum of min distances
+        # Finds the max distance out of all corners and returns it
+        if not isVisited and (distance_to_corner > max_distance):
+            max_distance = distance_to_corner
+    
+    return max_distance
 
 
 class AStarCornersAgent(SearchAgent):
