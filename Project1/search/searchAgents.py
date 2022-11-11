@@ -513,8 +513,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
             # add the distance of (position, food) to the map
             problem.heuristicInfo[(position, food)] = distance
 
-    max_distance =  max(food_distance) # find and the return the max food distance as upper bound solution
-
+    max_distance =  max(food_distance) # find and the return the max food distance 
     return max_distance  
 
 
