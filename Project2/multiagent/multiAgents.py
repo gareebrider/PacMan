@@ -218,7 +218,60 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def maxValue(gameState, pacmanID, depth, a, b):
+            maxValue = -9999999999
+            bestAction = None
+            legalActions = gameState.getLegalActions(pacmanID)
+
+            for action in legalActions:
+                succState = gameState.generateSuccessor(pacmanID, action)
+                tempValue, NULLaction = minimax(succState, pacmanID+1, depth, a, b)
+                
+                maxValue = max(tempValue, maxValue)
+                if maxValue == tempValue:
+                    bestAction = action
+
+                a = max(a, maxValue)
+
+                if a > b:
+                    return (maxValue, bestAction)
+            
+            return (maxValue, bestAction)
+
+        def minValue(gameState, pacmanID, depth, a, b):
+            minValue = 9999999999
+            bestAction = None
+            legalActions = gameState.getLegalActions(pacmanID)
+
+            for action in legalActions:
+                succState = gameState.generateSuccessor(pacmanID, action)
+                tempValue, NULLaction = minimax(succState, pacmanID+1, depth, a, b)
+                
+                minValue = min(tempValue, minValue)
+                if minValue == tempValue:
+                    bestAction = action
+
+                b = min(b, minValue)
+
+                if b < a:
+                    return (minValue, bestAction)
+            
+            return (minValue, bestAction)
+
+        def minimax(gameState, agentID, depth, a, b):
+            if agentID >= gameState.getNumAgents():
+                depth += 1
+                agentID = 0
+
+            if gameState.isWin() or gameState.isLose() or (depth == self.depth):
+                return (self.evaluationFunction(gameState), None)
+            if agentID == 0:
+                return maxValue(gameState, agentID, depth, a, b)
+            else:
+                return minValue(gameState, agentID, depth, a, b)
+        
+        return minimax(gameState, 0, 0, -999999, 999999)[1]
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
