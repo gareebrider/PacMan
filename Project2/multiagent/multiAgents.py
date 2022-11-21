@@ -355,42 +355,41 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: <Evaluating current state in detail>
     """
     "*** YOUR CODE HERE ***"
-    foodList = currentGameState.getFood().asList()
-    newPos = currentGameState.getPacmanPosition()
+    foodList      = currentGameState.getFood().asList()  # food position
+    newPos        = currentGameState.getPacmanPosition() # current position
+    captules      = currentGameState.getCapsules()       # captule position
+    ghosts        = currentGameState.getGhostPositions() # ghost position
+    foodCount     = len(foodList)                        # food count
+    captulesCount = len(captules)                        # captule count
 
-    foodDistances     = []
-    ghostDistances    = []
-    captuleDistances  = []
-    minFoodDist    = 9999999
-    minGhostDist   = 9999999
-    minCaptuleDist = 9999999
+    minFoodDist    = 9999999    # min food distance
+    minGhostDist   = 9999999    # min ghost distance
+    minCaptuleDist = 9999999    # min captule distance
 
-    captules = currentGameState.getCapsules()
-    captulesCount = len(currentGameState.getCapsules())
-    foodCount = len(foodList)
-    ghosts = currentGameState.getGhostPositions()
-
-    if currentGameState.isWin():    return 9999999
-    elif currentGameState.isLose():    return -9999999
+    if   currentGameState.isWin():  return  9999999 # Win check
+    elif currentGameState.isLose(): return -9999999 # Lose check
     else:
-        for food in foodList:
+        for food in foodList: # find the min food Manhattan distance from current state
             minFoodDist = min(manhattanDistance(food, newPos), minFoodDist)    
 
-        for captule in captules:
+        for captule in captules: # find the min captule Manhattan distance from current state
             minCaptuleDist = min(manhattanDistance(captule, newPos), minCaptuleDist)    
 
-        for ghost in ghosts:
+        for ghost in ghosts: # find the min ghost Manhattan distance from current state
             minGhostDist = min(manhattanDistance(ghost, newPos), minGhostDist)
             
-        if minGhostDist == 0:
+        if minGhostDist == 0: # if currPosition == ghostDist game is over ;(
             return -9999999
 
-        score = currentGameState.getScore()
+        currentScore = currentGameState.getScore() # current game score
 
-        evaluation = 0.01 * score + 0.0001 * minGhostDist + 1/minFoodDist*10 + 1/(minCaptuleDist+0.1)*1000 + 1/(foodCount+0.1)*9999 + 1/(captulesCount+0.1)*5000
+        # evalution number is related to: 
+        # score, ghost distance, food distance, captule distance, food, captules
+        # (minCaptuleDist+0.1), (foodCount+0.1), (captulesCount+0.1) cause of division by 0 avoidance
+        evaluation = 0.01 * currentScore + 0.0001 * minGhostDist + 1/minFoodDist*10 + 1/(minCaptuleDist+0.1)*1000 + 1/(foodCount+0.1)*9999 + 1/(captulesCount+0.1)*5000
         
         return evaluation
 
