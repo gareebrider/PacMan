@@ -286,7 +286,50 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def maxValue(gameState, pacmanID, depth):
+            maxValue = -9999999999
+            bestAction = None
+            legalActions = gameState.getLegalActions(pacmanID)
+
+            for action in legalActions:
+                succState = gameState.generateSuccessor(pacmanID, action)
+                tempValue, NULLaction = expectimax(succState, pacmanID+1, depth)
+                
+                maxValue = max(tempValue, maxValue)
+                if maxValue == tempValue:
+                    bestAction = action
+
+            
+            return (maxValue, bestAction)
+
+        def chanceValue(gameState, pacmanID, depth):
+            average = 0
+            bestAction = None
+            legalActions = gameState.getLegalActions(pacmanID)
+            probability = 1.0/len(legalActions)
+            
+            for action in legalActions:
+                succState = gameState.generateSuccessor(pacmanID, action)
+                tempScore, NULLaction = expectimax(succState, pacmanID+1, depth)
+
+                average += tempScore*probability
+
+            return (average, None)
+
+
+        def expectimax(gameState, agentID, depth):
+            if agentID >= gameState.getNumAgents():
+                depth += 1
+                agentID = 0
+
+            if gameState.isWin() or gameState.isLose() or (depth == self.depth):
+                return (self.evaluationFunction(gameState), None)
+            if agentID == 0:
+                return maxValue(gameState, agentID, depth)
+            else:
+                return chanceValue(gameState, agentID, depth)
+        
+        return expectimax(gameState, 0, 0)[1]
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
@@ -296,7 +339,7 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
 
 # Abbreviation
 better = betterEvaluationFunction
