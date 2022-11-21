@@ -244,39 +244,46 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             
             return (maxValue, bestAction)                                               # return (maxValue. bestAction) after minimax finishes
 
-        def minValue(gameState, pacmanID, depth, a, b):
-            minValue = 9999999999
-            bestAction = None
-            legalActions = gameState.getLegalActions(pacmanID)
+        def minValue(gameState, pacmanID, depth, a, b):                                 # find the min value for the minimizer => ghosts
+            minValue = 9999999999                                                       # all legal moves for the ghost agent
+            bestAction = None                                                           # initialize to ~= +infinity
+            legalActions = gameState.getLegalActions(pacmanID)                          # best move to return
 
-            for action in legalActions:
-                succState = gameState.generateSuccessor(pacmanID, action)
-                tempValue, NULLaction = minimax(succState, pacmanID+1, depth, a, b)
-                
-                minValue = min(tempValue, minValue)
+            for action in legalActions:                                                 # new successor state after ghost action
+                succState = gameState.generateSuccessor(pacmanID, action)               # continue minimax with the next agent(either new ghost or pacman if this is the last agent) and same depth
+                tempValue, NULLaction = minimax(succState, pacmanID+1, depth, a, b)     # minimax returns (value, action). We don't need action at this time
+                                                                                        # keep the min value. Either minimax's or previous value.
+                minValue = min(tempValue, minValue)                                     # if new minValue was from this minimax we keep it's action as best
                 if minValue == tempValue:
                     bestAction = action
 
-                b = min(b, minValue)
+                b = min(b, minValue)                                                    # b is the min value
 
-                if b < a:
+                if b < a:                                                               # a-b pruning termination state
                     return (minValue, bestAction)
             
-            return (minValue, bestAction)
+            return (minValue, bestAction)                                               # return (minValue. bestAction) after minimax finishes
 
-        def minimax(gameState, agentID, depth, a, b):
-            if agentID >= gameState.getNumAgents():
-                depth += 1
-                agentID = 0
+        def minimax(gameState, agentID, depth, a, b): # pacman agentID == 0. Ghost agentID > 0 and agentID < agentsNumber 
+            if agentID >= gameState.getNumAgents():   # if a-b pruning(minimax) was called from the last ghost then
+                agentID = 0                           # its time for pacman to play and
+                depth  += 1                           # increase the depth
 
-            if gameState.isWin() or gameState.isLose() or (depth == self.depth):
+            if gameState.isWin() or gameState.isLose() or (depth == self.depth): # a-b pruning(minimax) stop check
                 return (self.evaluationFunction(gameState), None)
-            if agentID == 0:
+            if agentID == 0:    # find the maxValue for the maximizer => Pacman
                 return maxValue(gameState, agentID, depth, a, b)
-            else:
+            else:               # find the minValue for the minimizer => Ghost
                 return minValue(gameState, agentID, depth, a, b)
         
-        return minimax(gameState, 0, 0, -999999, 999999)[1]
+        # ----------- getAction section ------------
+        agentId = 0 # pacman agent
+        depth   = 0 # starting depth
+        a       = -9999999 # starting alpha
+        b       =  9999999 # starting beta
+        value, bestAction = minimax(gameState, agentId, depth, a, b)
+
+        return bestAction
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
