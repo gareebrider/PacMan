@@ -176,7 +176,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 if maxValue == tempValue:                                       # if new maxValue was from this minimax we keep it's action as best
                     bestAction = action
             
-            return (maxValue, bestAction)                                       # return (maxValue. bestAction) after minimax finishes
+            return (maxValue, bestAction)                                       # return (maxValue, bestAction) after minimax finishes
 
 
         def minValue(state, pacmanID, depth):                                   # find the min value for the minimizer => ghosts
@@ -192,7 +192,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 if minValue == tempValue:                                       # if new minValue was from this minimax we keep it's action as best
                     bestAction = action
             
-            return (minValue, bestAction)                                       # return (minValue. bestAction) after minimax finishes
+            return (minValue, bestAction)                                       # return (minValue, bestAction) after minimax finishes
 
         def minimax(gameState, agentID, depth):     # pacman agentID == 0. Ghost agentID > 0 and agentID < agentsNumber 
             if agentID >= gameState.getNumAgents(): # if minimax was called from the last ghost then
@@ -242,7 +242,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if a > b:                                                               # a-b pruning termination state
                     return (maxValue, bestAction)                                       
             
-            return (maxValue, bestAction)                                               # return (maxValue. bestAction) after minimax finishes
+            return (maxValue, bestAction)                                               # return (maxValue, bestAction) after minimax finishes
 
         def minValue(gameState, pacmanID, depth, a, b):                                 # find the min value for the minimizer => ghosts
             minValue = 9999999999                                                       # all legal moves for the ghost agent
@@ -262,7 +262,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if b < a:                                                               # a-b pruning termination state
                     return (minValue, bestAction)
             
-            return (minValue, bestAction)                                               # return (minValue. bestAction) after minimax finishes
+            return (minValue, bestAction)                                               # return (minValue, bestAction) after minimax finishes
 
         def minimax(gameState, agentID, depth, a, b): # pacman agentID == 0. Ghost agentID > 0 and agentID < agentsNumber 
             if agentID >= gameState.getNumAgents():   # if a-b pruning(minimax) was called from the last ghost then
@@ -299,50 +299,56 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        def maxValue(gameState, pacmanID, depth):
-            maxValue = -9999999999
-            bestAction = None
-            legalActions = gameState.getLegalActions(pacmanID)
+        def maxValue(gameState, pacmanID, depth):                                   # find the max value for the maximizer => pacman
+            maxValue = -9999999999                                                  # all legal moves for the pacman agent
+            bestAction = None                                                       # initialize to ~= -infinity
+            legalActions = gameState.getLegalActions(pacmanID)                      # best move to return
 
             for action in legalActions:
-                succState = gameState.generateSuccessor(pacmanID, action)
-                tempValue, NULLaction = expectimax(succState, pacmanID+1, depth)
-                
-                maxValue = max(tempValue, maxValue)
-                if maxValue == tempValue:
+                succState = gameState.generateSuccessor(pacmanID, action)           # new successor state after pacman action
+                tempValue, NULLaction = expectimax(succState, pacmanID+1, depth)    # continue expectimax with the next agent and same depth
+                                                                                    # expectimax returns (value, action). We don't need action at this time
+                maxValue = max(tempValue, maxValue)                                 # keep the max value. Either expectimax's or previous value.
+                if maxValue == tempValue:                                           # if new maxValue was from this expectimax we keep it's action as best
                     bestAction = action
-
             
-            return (maxValue, bestAction)
-
-        def chanceValue(gameState, pacmanID, depth):
-            average = 0
-            bestAction = None
-            legalActions = gameState.getLegalActions(pacmanID)
-            probability = 1.0/len(legalActions)
-            
-            for action in legalActions:
-                succState = gameState.generateSuccessor(pacmanID, action)
-                tempScore, NULLaction = expectimax(succState, pacmanID+1, depth)
-
-                average += tempScore*probability
-
-            return (average, None)
+            return (maxValue, bestAction)                                           # return (maxValue, bestAction) after expectimax finishes
 
 
-        def expectimax(gameState, agentID, depth):
-            if agentID >= gameState.getNumAgents():
-                depth += 1
-                agentID = 0
+        def chanceValue(gameState, pacmanID, depth):                                # find the average value for the ghosts
+            legalActions = gameState.getLegalActions(pacmanID)                      # all legal moves for the ghost agent
+            probability = 1.0/len(legalActions)                                     # legal moves probability of ghost 
+            average = 0                                                             # initialize average to 0
+            bestAction = None                                                       # best move to return
 
-            if gameState.isWin() or gameState.isLose() or (depth == self.depth):
+            for action in legalActions:                                             
+                succState = gameState.generateSuccessor(pacmanID, action)           # new successor state after ghost action
+                tempScore, NULLaction = expectimax(succState, pacmanID+1, depth)    # continue expectimax with the next agent(either new ghost or pacman if this is the last agent) and same depth
+                                                                                    # expectimax returns (value, action). We don't need action at this time
+                average += tempScore*probability                                    # average value is the sum of expectimax * probability
+
+            return (average, bestAction)                                            # return (average, bestAction) after expectimax finishes
+
+
+        def expectimax(gameState, agentID, depth):  # pacman agentID == 0. Ghost agentID > 0 and agentID < agentsNumber 
+            if agentID >= gameState.getNumAgents(): # if expectimax was called from the last ghost then
+                agentID = 0                         # its time for pacman to play and
+                depth  += 1                         # increase the depth
+        
+
+            if gameState.isWin() or gameState.isLose() or (depth == self.depth): # expectimax stop check
                 return (self.evaluationFunction(gameState), None)
-            if agentID == 0:
+            if agentID == 0:    # find the maxValue for the maximizer => Pacman
                 return maxValue(gameState, agentID, depth)
-            else:
+            else:               # find the expected value for ghosts
                 return chanceValue(gameState, agentID, depth)
         
-        return expectimax(gameState, 0, 0)[1]
+        # ----------- getAction section ------------
+        agentId = 0 # pacman agent
+        depth   = 0 # starting depth
+        value, bestAction = expectimax(gameState, agentId, depth)
+
+        return bestAction
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
