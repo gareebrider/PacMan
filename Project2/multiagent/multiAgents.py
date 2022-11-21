@@ -73,33 +73,33 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
 
         "*** YOUR CODE HERE ***"
-        score = 0
-        distance = 0
+        score = 0                                       # returning variable
+        distance = 0                                    # distance from currPos to food
         oldFood = currentGameState.getFood().asList()   # food with current state
         newFood = successorGameState.getFood().asList() # food with next state
-        ateFood = False # flag 
+        ateFood = False                                 # flag 
 
-        if action == 'Stop':
+        if action == 'Stop':              # we don't want to stop
             return -99999999
 
-        if len(newFood) < len(oldFood):   # if pacman ate a food by doing this move
-            ateFood = True
+        if len(newFood) < len(oldFood):   # if pacman ate a piece of food by doing this move
+            ateFood = True                # flag becomes true
         
-        if ateFood:
+        if ateFood:                       # score is increased if food has been eaten. We want this
             score += 200
         
-        for food in newFood:
+        for food in newFood:              # for every piece of food calculate the Manhattan distance for it
             distance = manhattanDistance(newPos, food)
-            score += 100/distance
+            score += 100/distance         # the closer the better. Score is increasing for the nearest food
 
-        for ghost in newGhostStates:
+        for ghost in newGhostStates:      # for every ghost find it's position
             ghostPos = ghost.getPosition()
            
-            if newPos == ghostPos and ghost.scaredTimer == 0:
-                return -999999999
-
-            elif newPos == ghostPos and ghost.scaredTimer != 0:
-                score += 100
+            if newPos == ghostPos and ghost.scaredTimer == 0:   # if pacman's position == ghost's position and 
+                return -999999999                               # ghost isn't scared then it's game over and we dont want this
+ 
+            elif newPos == ghostPos and ghost.scaredTimer != 0: # if pacman's position == ghost's position and 
+                score += 100                                    # ghost is scared then score increases cause pacman ate the ghost
 
         return score
 
@@ -163,50 +163,56 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        def maxValue(state, pacmanID, depth):
-            legalActions = state.getLegalActions(pacmanID)
-            value = -9999999999
-            bestAction = None
+        def maxValue(state, pacmanID, depth):                                   # find the max value for the maximizer => pacman
+            legalActions = state.getLegalActions(pacmanID)                      # all legal moves for the pacman agent
+            maxValue = -9999999999                                              # initialize to ~= -infinity
+            bestAction = None                                                   # best move to return
 
-            for action in legalActions:
-                succState = state.generateSuccessor(pacmanID, action)
-                tempValue, NULLaction = minimax(succState, pacmanID+1, depth)
-                
-                if tempValue > value:
-                    value = tempValue
+            for action in legalActions:                     
+                succState = state.generateSuccessor(pacmanID, action)           # new successor state after pacman action
+                tempValue, NULLaction = minimax(succState, pacmanID+1, depth)   # continue minimax with the next agent and same depth
+                                                                                # minimax returns (value, action). We don't need action at this time
+                maxValue = max(tempValue, maxValue)                             # keep the max value. Either minimax's or previous value.
+                if maxValue == tempValue:                                       # if new maxValue was from this minimax we keep it's action as best
                     bestAction = action
             
-            return (value, bestAction)
+            return (maxValue, bestAction)                                       # return (maxValue. bestAction) after minimax finishes
 
 
-        def minValue(state, pacmanID, depth):
-            legalActions = state.getLegalActions(pacmanID)
-            value = 9999999999
-            bestAction = None
+        def minValue(state, pacmanID, depth):                                   # find the min value for the minimizer => ghosts
+            legalActions = state.getLegalActions(pacmanID)                      # all legal moves for the ghost agent
+            value = 9999999999                                                  # initialize to ~= +infinity
+            bestAction = None                                                   # best move to return
 
             for action in legalActions:
-                succState = state.generateSuccessor(pacmanID, action)
-                tempValue, NULLaction = minimax(succState, pacmanID+1, depth)
-                
-                if tempValue < value:
-                    value = tempValue
+                succState = state.generateSuccessor(pacmanID, action)           # new successor state after ghost action
+                tempValue, NULLaction = minimax(succState, pacmanID+1, depth)   # continue minimax with the next agent(either new ghost or pacman if this is the last agent) and same depth
+                                                                                # minimax returns (value, action). We don't need action at this time
+                minValue = min(tempValue, minValue)                             # keep the min value. Either minimax's or previous value.
+                if minValue == tempValue:                                       # if new minValue was from this minimax we keep it's action as best
                     bestAction = action
             
-            return (value, bestAction)
+            return (minValue, bestAction)                                       # return (minValue. bestAction) after minimax finishes
 
-        def minimax(gameState, agentID, depth):
-            if agentID >= gameState.getNumAgents():
-                depth += 1
-                agentID = 0
+        def minimax(gameState, agentID, depth):     # pacman agentID == 0. Ghost agentID > 0 and agentID < agentsNumber 
+            if agentID >= gameState.getNumAgents(): # if minimax was called from the last ghost then
+                agentID = 0                         # its time for pacman to play and
+                depth  += 1                         # increase the depth
 
-            if gameState.isWin() or gameState.isLose() or (depth == self.depth):
-                return (self.evaluationFunction(gameState), None)
-            if agentID == 0:
+            if gameState.isWin() or gameState.isLose() or (depth == self.depth): # minimax stop check
+                bestAction = None
+                return (self.evaluationFunction(gameState), bestAction)
+            if agentID == 0:    # find the maxValue for the maximizer => Pacman
                 return maxValue(gameState, agentID, depth)
-            else:
+            else:               # find the minValue for the minimizer => Ghost
                 return minValue(gameState, agentID, depth)
-        
-        return minimax(gameState, 0, 0)[1]
+
+        # ----------- getAction section ------------
+        agentId = 0 # pacman agent
+        depth   = 0 # starting depth
+        value, bestAction = minimax(gameState, agentId, depth)
+
+        return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -370,7 +376,7 @@ def betterEvaluationFunction(currentGameState: GameState):
             return -9999999
 
         score = currentGameState.getScore()
-        
+
         evaluation = 0.01 * score + 0.0001 * minGhostDist + 1/minFoodDist*10 + 1/(minCaptuleDist+0.1)*1000 + 1/(foodCount+0.1)*9999 + 1/(captulesCount+0.1)*5000
         
         return evaluation
