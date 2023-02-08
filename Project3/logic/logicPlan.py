@@ -196,7 +196,7 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    return atMostOne(literals) 
+    return atMostOne(literals) & atLeastOne(literals) 
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
