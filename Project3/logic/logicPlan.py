@@ -386,7 +386,8 @@ def positionLogicPlan(problem) -> List:
             return extractActionSequence(tmp, actions)
         KB.append(exactlyOne([PropSymbolExpr(action, time=t) for action in actions]))
         KB.extend([pacmanSuccessorAxiomSingle(x, y, t+1, walls_grid) for x,y in non_wall_coords])
-    return result
+    
+        return result
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
@@ -430,7 +431,8 @@ def foodLogicPlan(problem) -> List:
         KB.extend([pacmanSuccessorAxiomSingle(x, y, t+1, walls) for x,y in non_wall_coords])
         KB.extend([(PropSymbolExpr(food_str, x, y, time=t) & PropSymbolExpr(pacman_str, x, y, time=t)) >> (~PropSymbolExpr(food_str, x, y, time=t+1)) for x,y in food])
         KB.extend([(PropSymbolExpr(food_str, x, y, time=t) & (~PropSymbolExpr(pacman_str, x, y, time=t))) >> PropSymbolExpr(food_str, x, y, time=t+1) for x,y in food])
-    return result
+    
+        return result
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
