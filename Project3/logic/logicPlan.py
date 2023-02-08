@@ -376,7 +376,17 @@ def positionLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, time=0))
+    result = []
+    for t in range(50):
+        print(t)
+        KB.append(exactlyOne([PropSymbolExpr(pacman_str, x, y, time=t) for x,y in non_wall_coords]))
+        tmp = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, xg, yg, time=t))
+        if tmp:
+            return extractActionSequence(tmp, actions)
+        KB.append(exactlyOne([PropSymbolExpr(action, time=t) for action in actions]))
+        KB.extend([pacmanSuccessorAxiomSingle(x, y, t+1, walls_grid) for x,y in non_wall_coords])
+    return result
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
