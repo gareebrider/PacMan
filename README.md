@@ -3,7 +3,7 @@ Pac-Man, one of the most popular arcade games of all time, is not only fun to pl
 
 This repository provides all the code and resources you need to get started with the Pac-Man AI project. The goal of the project is to develop an intelligent agent that can play the game of Pac-Man using various AI concepts, such as search algorithms, decision-making techniques, and more, implemented in Python 3.
 
-Intro was made leveraging GPT 3.5 Turbo
+Intro was made leveraging gpt 3.5 Turbo.
 
 This is my project for the course Artificial Intelligence (2022 Fall), at University of Athens.
 
@@ -181,7 +181,7 @@ python pacman.py -l trickySearch -p SearchAgent -a fn=bfs,prob=FoodSearchProblem
 
 <img src="https://github.com/thiadeliria/Pacman/blob/master/gifs/tricky_bfs_text.png" title="BFS on trickySearch, text"/>
 
-Pac-Man manages to find a short and stright-forward solution. However, it takes almost a whole minute for BFS to find this solution - BFS expands over 16,000 nodes during the search process. (For reference, there are 67 nodes in this maze.)
+Pac-Man manages to find a short and stright-forward solution. However, it takes almost a whole minute for BFS to find this solution - BFS expands over 17,000 nodes during the search process. (For reference, there are 67 nodes in this maze.)
 
 If we want to find a cost-efficient path quickly, we need to define a heuristic.
 
@@ -198,7 +198,7 @@ python pacman.py -l trickySearch -p SearchAgent -a fn=astar,prob=FoodSearchProbl
 
 <img src="https://github.com/thiadeliria/Pacman/blob/master/gifs/tricky_astar_text.png" title="A* on trickySearch, text"/>
 
-Pac-Man now quickly and confidently gobbles up all the food in the maze. A* expands only 2,748 nodes compared to BFS' 16,688, and still manages to find a decently short solution.
+
 
 
 #### Comparison
