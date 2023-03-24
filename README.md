@@ -3,10 +3,7 @@ Pac-Man, one of the most popular arcade games of all time, is not only fun to pl
 
 This repository provides all the code and resources you need to get started with the Pac-Man AI project. The goal of the project is to develop an intelligent agent that can play the game of Pac-Man using various AI concepts, such as search algorithms, decision-making techniques, and more, implemented in Python 3.
 
-Intro was made leveraging gpt 3.5 Turbo.
-
 This is my project for the course Artificial Intelligence (2022 Fall), at University of Athens.
-
 
 ## Table of Contents
 * [How to Play](https://github.com/thiadeliria/Pacman#how-to-play)
